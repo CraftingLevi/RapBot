@@ -26,10 +26,14 @@ def readFile(artist):
             if (n < 1):
                 print(f)
                 n += 1
-                tokens = tok.word_tokenize(file.readlines())
-                print(tokens[:10])
+                lyrics = file.readlines()
+                for line in lyrics:
+                    if line != '\n':
+                        tokens = tok.word_tokenize(line)
+                        print(tokens)
+
 
 
 #---------------CODE--------------------
 #deleteNonSongs('50 Cent', True)
-#readFile('50 Cent')
+readFile('50 Cent')

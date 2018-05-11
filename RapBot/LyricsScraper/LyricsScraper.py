@@ -187,9 +187,9 @@ def get_lyrics_top100rappers(file_path):
 
 
 # --------------------------CODE--------------------------#
-LyricsArtist("JAY-Z").store_lyrics()
+#LyricsArtist("JAY-Z").store_lyrics()
 
-#get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
 
 
 
