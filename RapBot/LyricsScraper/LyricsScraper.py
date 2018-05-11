@@ -143,7 +143,7 @@ class LyricsArtist(object):
     # A file is created with the name of the song title, and inside the lyrics
     # FIXED BUG: normal codec couldn't write some bytes, thus we use UTF-8 now for encoding
     def store_lyrics(self):
-        directory = "C:/Users/Levi/PycharmProjects/practices/Scraper/RapBot/Lyrics/" + self.artist
+        directory = os.getcwd() + "/Lyrics/" + self.artist
         if not os.path.exists(directory):
             os.makedirs(directory)
         save_path = directory + "/"
@@ -187,9 +187,9 @@ def get_lyrics_top100rappers(file_path):
 
 
 # --------------------------CODE--------------------------#
-#LyricsArtist("JAY-Z").store_lyrics()
+LyricsArtist("JAY-Z").store_lyrics()
 
-get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+#get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
 
 
 
