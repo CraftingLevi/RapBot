@@ -85,7 +85,7 @@ class LyricsArtist(object):
             if page_songs:
                 self.songs += page_songs
                 logger.info("I scraped " + str(current_page) + " pages (time: " +
-                      datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
+                            datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
                 current_page += 1
                 sleep(5)
             else:
@@ -129,13 +129,13 @@ class LyricsArtist(object):
                 self.songs_lyrics[song_title] = lyrics
                 n += 1
                 logger.info("I scraped " + str(n) + " of " + str(amount_songs) + " songs (time: " +
-                      datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
+                            datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
                 sleep(5)
             else:
                 n += 1
                 sleep(5)
                 logger.error("I skipped " + str(n) + "(time: " +
-                      datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
+                             datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
         return self.songs_lyrics
 
     # in this code, we write the lyrics to a file
@@ -157,7 +157,14 @@ class LyricsArtist(object):
             file.close()
 
 
-def get_lyrics_top100rappers(file_path):
+"""
+get_lyrics_top100rappers acquires the lyrics from all songs of the rappers in a text file
+INPUT: file_path to the .txt file containing names of rappers seperated by '\n'
+OUTPUT: In the folder 'Lyrics', in a directory <artist_name>, all song_lyrics will be stored
+"""
+
+
+def get_lyrics_top100rappers(file_path=os.getcwd() + '/Top100Rappers.txt'):
     assert isinstance(file_path, str)
     logger = logging.getLogger(get_lyrics_top100rappers.__name__)
     file = open(file_path, 'r', encoding='utf-8')
@@ -177,7 +184,7 @@ def get_lyrics_top100rappers(file_path):
         try:
             LyricsArtist(artists[x]).store_lyrics()
             logger.info("Succes: " + artists[x])
-        except:     #Exceptions are currently unknown
+        except:  # Exceptions are currently unknown
             logger.error("Failed: " + artists[x], exc_info=True)
             failed_artists.append(artists[x])
     logger.debug("Done! I've failed the following artists: ")
@@ -186,29 +193,17 @@ def get_lyrics_top100rappers(file_path):
     logger.debug("Check your spelling or look on genius.com how the artist name is stored")
 
 
+"""
+the function get_song_metadata acquires certain metadata about the songs in the folder 'Lyrics'
+INPUT:-
+REQUIRES: a 'succesfull' run of get_lyrics_top100rappers(file_path)
+"""
+
+
+def get_song_metadata():
+    """do nothing"""
+    # TODO port from TrainRapify
+
+
 # --------------------------CODE--------------------------#
-#LyricsArtist("JAY-Z").store_lyrics()
-
 get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
-
-
-
-# BIGFIX fix the bug below:
-# Traceback (most recent call last):
-#   File "C:\Users\Levi\PycharmProjects\practices\Scraper\RapBot\LyricsScraper\LyricsScraper.py", line 118, in <module>
-#     LyricsArtist("Childish Gambino").store_lyrics()
-#   File "C:\Users\Levi\PycharmProjects\practices\Scraper\RapBot\LyricsScraper\LyricsScraper.py",
-#  line 108, in store_lyrics
-#     songslist = self.scrape_lyrics()
-#   File "C:\Users\Levi\PycharmProjects\practices\Scraper\RapBot\LyricsScraper\LyricsScraper.py",
-#  line 80, in scrape_lyrics
-#     json = response.json()
-#   File "C:\Users\Levi\Anaconda3\lib\site-packages\requests\models.py", line 894, in json
-#     return complexjson.loads(self.text, **kwargs)
-#   File "C:\Users\Levi\Anaconda3\lib\site-packages\simplejson\__init__.py", line 516, in loads
-#     return _default_decoder.decode(s)
-#   File "C:\Users\Levi\Anaconda3\lib\site-packages\simplejson\decoder.py", line 370, in decode
-#     obj, end = self.raw_decode(s)
-#   File "C:\Users\Levi\Anaconda3\lib\site-packages\simplejson\decoder.py", line 400, in raw_decode
-#     return self.scan_once(s, idx=_w(s, idx).end())
-# simplejson.scanner.JSONDecodeError: Expecting value: line 1 column 1 (char 0)

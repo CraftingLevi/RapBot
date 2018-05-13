@@ -53,6 +53,7 @@ class SongLyrics:
         return lyrics
 
 
-#In_Da_Club = SongLyrics('In Da Club', '50 Cent')
+In_Da_Club = SongLyrics('In Da Club', '50 Cent')
 print(In_Da_Club.getLyrics())
+
 
