@@ -8,37 +8,30 @@ USEFUL: -
 Last Updated: 11-05-2018
 """
 import ast
-import lxml
+import wikipedia
 import os
 import re
 
 import requests
 from nltk import tokenize as tok
-from bs4 import BeautifulSoup
-import langdetect
+
 
 BASE_URL = "http://api.genius.com"
-file_path = os.getcwd() + "/../api_key.txt"
+file_path = os.getcwd() + "/../api_key_genius"
 file = open(file_path, 'r', encoding='utf-8')
 TOKEN = file.readline()
 HEADERS = {'Authorization': "Bearer " + TOKEN}
+file_path = os.getcwd() + "/../api_key_spotify"
+file = open(file_path, 'r', encoding='utf-8')
+SPOTIFY_URL = "https://api.spotify.com/v1/search"
+TOKEN_SPOTIFY = file.readline()
 
 # TODO implement http://anthology.aclweb.org/C/C14/C14-1059.pdf
 # Fell, M., & Sporleder, C. (2014). Lyrics-based Analysis and classification of music.
 # In Proceedings of COLING 2014, the 25th International Conference on Computational Linguistics:
 # Technical Papers (pp. 620-631).
 
-"""
-The function 'clean_up_data' filters undesired files from the lyrics using
-the following criteria:
-1) Filename does not include either 'Tracklist', 'AMA', 'Album Art', '.+Thank You' or 'Interview.+'
-2) The file contains at least words
-3) The lyrics are english (filter by turkish or portuguese)
-4) The file contains more than 500 characters
-INPUT: str(artist), bool(delete)
-OUTPUT: if delete == true, deletes undesired files
-        else, does nothing (For Debugging purposes)
-"""
+
 
 def generate_word_model():
     'do nothing'
@@ -61,6 +54,17 @@ def read_file(artist):
                         print(tokens)
 
 #TODO integrate this with lyrics scraping
+# The function below gathers the following features
+# Song Title
+# Artist
+# Album
+# ?Music
+# Language
+# Genre
+# release year
+# featuring artists
+# duration (in ms)
+# danceability
 def get_song_metadata():
     file_path = os.getcwd() + "/../Lyrics"
     artists = [f.name for f in os.scandir(file_path) if f.is_dir()]
@@ -88,6 +92,7 @@ def get_song_metadata():
                     # scrape the retrieved html
                     page_url = "http://genius.com" + path
                     page = requests.get(page_url)
+
                     for line in page.text.splitlines():
                         if re.search("var TRACKING_DATA =", line):
                             metadata = ast.literal_eval(((line.partition('=')[2].strip())[:-1])
@@ -107,11 +112,35 @@ def get_song_metadata():
                             print(language)
                             print(genre)
                         if re.search("release_date_components", line):
+                            print(line)
+                            duration = None
+                            featuring_artists = line.split('&quot;authors&quot;:')[1].replace('&quot;', '')\
+                                .replace(artist+',', '').split(',sections')[0].split(',')
+                            if 'sections:' in featuring_artists[0]:
+                                featuring_artists = None
                             year = line.split('release_date_components')[1].replace('&quot;', '').replace(":{year:", '')[:4]
                             if year == ':nul':
                                 year = None
                             print(year)
+                            print(featuring_artists)
                             #TODO extract more metadata in this way
+                    params_spotify = {'offset': 0, 'limit': 1, 'market': 'US', 'type': 'track', 'q': song,
+                                      }
+                    SPOTIFY_HEADERS = {'Authorization': 'Bearer ' + TOKEN_SPOTIFY}
+                    response_spotify = requests.get(SPOTIFY_URL, params=params_spotify, headers=SPOTIFY_HEADERS)
+                    json_spotify = response_spotify.json()
+                    if json_spotify["tracks"]["items"]:
+                        duration = json_spotify["tracks"]['items'][0]["duration_ms"]
+                        id_song = json_spotify["tracks"]['items'][0]["id"]
+                        AUDIO_FEATURES_URL = 'https://api.spotify.com/v1/audio-features/'
+                        response_spotify2 = requests.get(AUDIO_FEATURES_URL + id_song, headers=SPOTIFY_HEADERS)
+                        json_spotify2 = response_spotify2.json()
+                        danceability = json_spotify2["danceability"]
+                    else:
+                        duration = None
+                        danceability = None
+                    print(duration)
+                    print(danceability)
                     if re.sub('[*\.|:?"]', '', re.sub("[\/\\\]", "-", title)) == song:
                         print('--NEXT SONG--')
                         break

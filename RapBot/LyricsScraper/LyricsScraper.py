@@ -32,7 +32,7 @@ This script requires the following constants:
 # TODO review store api_token in seperate file to start using public VCS
 BASE_URL = "http://api.genius.com"
 logger = logging.getLogger(__name__)
-file_path = os.getcwd() + "/api_key.txt"
+file_path = os.getcwd() + "/api_key_genius"
 file = open(file_path, 'r', encoding='utf-8')
 TOKEN = file.readline()
 HEADERS = {'Authorization': "Bearer " + TOKEN}
