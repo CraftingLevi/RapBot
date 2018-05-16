@@ -52,8 +52,9 @@ logging:
 
 
 class LyricsArtist(object):
-    def __init__(self, artist):
+    def __init__(self, artist, language='en'):
         logger = logging.getLogger(LyricsArtist.__name__ + ".__init__")
+        self.language = language
         self.songs_data = {}
         self.artist = artist  # type: str
         self.songs_api_paths = {}
@@ -68,6 +69,10 @@ class LyricsArtist(object):
             if hit["result"]["primary_artist"]["name"] == self.artist:
                 artist_id = hit["result"]["primary_artist"]["id"]
                 logger.info("Found the Artist! Starting Scraping...")
+                break
+            elif self.artist == 'Ali B':
+                artist_id = 18793
+                logger.info("used custom ID for " + artist)
                 break
         # if we have successfully found the artist, the next code should not terminate the script
         # this code will retrieve the song title and song api id for each song of the artist
@@ -103,6 +108,7 @@ class LyricsArtist(object):
         amount_songs = len(self.songs_api_paths)
         # for each found song, we scrape the lyrics
         for song in self.songs_api_paths:
+            featuring_artists = []
             song_title = song
             song_url = BASE_URL + self.songs_api_paths.get(song)
             response = requests.get(song_url, headers=HEADERS)
@@ -116,6 +122,13 @@ class LyricsArtist(object):
                 logger.ERROR("Failed to read (" + n + ") " + song_title, exc_info=True)
             if test_json:
                 path = genius_json["response"]["song"]["path"]
+                release_date = genius_json["response"]["song"]["release_date"]
+                if genius_json["response"]["song"]["album"]:
+                    album = genius_json["response"]["song"]["album"]["name"]
+                else:
+                    album = None
+                for featured_artist in genius_json["response"]["song"]["featured_artists"]:
+                    featuring_artists.append(featured_artist["name"])
                 # as we have extracted the song url from the api, we can go to the genius webpage
                 # from the genious webpage for the song, we extract the HTML
                 page_url = "http://genius.com" + path
@@ -124,7 +137,8 @@ class LyricsArtist(object):
                 # after parsing the HTML, we remove all script elements between the lyrics
                 [h.extract() for h in html('script')]
                 lyrics = html.find("div", class_="lyrics").get_text()
-                lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)
+                lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)  # type: str
+                lyrics = re.sub('^\S*\s+', '', lyrics)
                 # we store the songs in a dict with key=title, value=lyrics
                 self.songs_data[song_title] = {}
                 for line in page.text.splitlines():
@@ -132,23 +146,13 @@ class LyricsArtist(object):
                         metadata = ast.literal_eval(((line.partition('=')[2].strip())[:-1])
                                                     .replace('false', 'False').replace('true', 'True')
                                                     .replace('null', 'None'))
-                        primary_artist = metadata["Primary Artist"]
-                        album = metadata["Primary Album"]
                         music_bool = metadata["Music?"]
-                        language = metadata["Lyrics Language"]
+                        language_song = metadata["Lyrics Language"]
                         genre = metadata["Tag"]
-                    if re.search("release_date_components", line):
-                        featuring_artists = line.split('&quot;authors&quot;:')[1].replace('&quot;', '') \
-                            .replace(self.artist + ',', '').split(',sections')[0].split(',')
-                        if 'sections:' in featuring_artists[0]:
-                            featuring_artists = None
-                        year = line.split('release_date_components')[1].replace('&quot;', '').replace(":{year:", '')[:4]
-                        if year == ':nul':
-                            year = None
                 # store all data in a dictionary if it is actually music
-                if music_bool and language == 'en':
+                if music_bool and language_song == self.language:
                     self.songs_data.get(song_title)['lyrics'] = lyrics
-                    self.songs_data.get(song_title)['year'] = year
+                    self.songs_data.get(song_title)['release_date'] = release_date
                     self.songs_data.get(song_title)['featuring_artists'] = featuring_artists
                     self.songs_data.get(song_title)['album'] = album
                     self.songs_data.get(song_title)['genre'] = genre
@@ -169,16 +173,16 @@ class LyricsArtist(object):
     # A directory is created for using the artist name if it doesn't already exist
     # A file is created with the name of the song title, and inside the lyrics
     # FIXED BUG: normal codec couldn't write some bytes, thus we use UTF-8 now for encoding
-    def store_lyrics(self):
-        directory = os.getcwd() + "/Lyrics/"
+    def store_lyrics(self, save_directory="/Lyrics"):
+        directory = os.getcwd() + save_directory + "_" +self.language + "/"
         if not os.path.exists(directory):
             os.makedirs(directory)
-        save_path = directory + "/"
         songs_list = self.scrape_lyrics()
         artist_library = {'artist': self.artist, 'songs': songs_list}
-        file = open(os.path.join(save_path, self.artist + '.json'), "w", encoding='utf-8')
+        file = open(os.path.join(directory, self.artist + '.json'), "w", encoding='utf-8')
         json.dump(artist_library, file, sort_keys=True, indent=4)
         file.close()
+
 
 """
 get_lyrics_top100rappers acquires the lyrics from all songs of the rappers in a text file
@@ -187,9 +191,9 @@ OUTPUT: In the folder 'Lyrics', in a directory <artist_name>, all song_lyrics wi
 """
 
 
-def get_lyrics_top100rappers(file_path=os.getcwd() + '/Top100Rappers.txt'):
+def get_lyrics_artists(file_path=os.getcwd() + '/Top100Rappers.txt', save_directory="/Lyrics/", language='en'):
     assert isinstance(file_path, str)
-    logger = logging.getLogger(get_lyrics_top100rappers.__name__)
+    logger = logging.getLogger(get_lyrics_artists.__name__)
     file = open(file_path, 'r', encoding='utf-8')
     artists = []
     reading = True
@@ -205,7 +209,7 @@ def get_lyrics_top100rappers(file_path=os.getcwd() + '/Top100Rappers.txt'):
     for x in range(0, len(artists)):
         logger.info("I am going to scrape " + artists[x])
         try:
-            LyricsArtist(artists[x]).store_lyrics()
+            LyricsArtist(artists[x],language=language).store_lyrics(save_directory=save_directory)
             logger.info("Succes: " + artists[x])
         except:  # Exceptions are currently unknown
             logger.error("Failed: " + artists[x], exc_info=True)
@@ -228,19 +232,43 @@ each song has a dictionary with -->
 """
 
 
-def compress_jsons(file_path= os.getcwd() + "/Lyrics/"):
+def compress_jsons(directory= os.getcwd() + "/Lyrics/_en", file_name='collection.json'):
     complete_library = {'artists': {}}
-    for file in os.listdir(file_path):
-        if re.search('.json', file) and not re.search('compressed', file):
-            f = open(os.path.join(file_path, file), 'r', encoding='utf-8')
+    for file in os.listdir(directory):
+        if re.search('.json', file) and not re.search('file_name', file):
+            f = open(os.path.join(directory, file), 'r', encoding='utf-8')
             data = json.load(f)
             complete_library.get('artists')[data['artist']] = {'songs': data['songs']}
-    file = open(os.path.join(file_path, 'compressed_scraped_lyrics.json'), "w", encoding='utf-8')
+    file = open(os.path.join(directory, file_name), "w", encoding='utf-8')
     json.dump(complete_library, file, sort_keys=True, indent=4)
     file.close()
 
-# --------------------------CODE--------------------------#
-#get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+def filter_already_scraped(directory=os.getcwd() + "/Lyrics/", file_path_artist_list = os.getcwd() + '/Top100Rappers.txt'):
+    scraped_artists = []
+    list_of_artists = []
+    if not os.path.exists(directory):
+        logger.info("Lyrics are yet to be scraped")
+        return
+    else:
+        for file in os.listdir(directory):
+            scraped_artists.append(file.replace('.json', ''))
+    artist_file = open(file_path_artist_list, 'r', encoding='utf-8')
+    for line in artist_file.readlines():
+        list_of_artists.append(line.replace('\n', ''))
+    artist_file.close()
+    for x in range(0, len(scraped_artists)):
+        if scraped_artists[x] in list_of_artists:
+            index = list_of_artists.index(scraped_artists[x])
+            list_of_artists[index] = '#' + list_of_artists[index]
+    f = open(file_path_artist_list, 'w', encoding='utf-8')
+    for x in range(0, len(list_of_artists)):
+        if x is not len(list_of_artists) - 1:
+            f.write(list_of_artists[x] + '\n')
+        else:
+            f.write(list_of_artists[x])
+    f.close()
 
-#LyricsArtist('Afrika Bambaataa').store_lyrics()
-compress_jsons()
+# --------------------------CODE--------------------------#
+get_lyrics_artists(os.getcwd() + '/RappersNL.txt', language='nl')
+#filter_already_scraped(directory=os.getcwd() + "/Lyrics/_nl", file_path_artist_list=os.getcwd() +"/RappersNL.txt")
+#compress_jsons(directory=os.getcwd() +"/Lyrics/_nl")

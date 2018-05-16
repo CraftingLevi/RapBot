@@ -12,10 +12,10 @@ import base64
 import json
 import os
 import re
+import win32com.client as wincl
 
 import requests
 from nltk import tokenize as tok
-
 
 BASE_URL = "http://api.genius.com"
 file_path = os.getcwd() + "/../api_key_genius"
@@ -30,23 +30,31 @@ HEADERS = {'Authorization': "Bearer " + TOKEN}
 # Technical Papers (pp. 620-631).
 
 
-
 def generate_word_model():
     'do nothing'
     # TODO finish method stub
 
 
-def read_file(artist):
+def read_file(file_name='collection.json', language='en'):
     # TODO finish query
-    file = os.getcwd() + '/../Lyrics/compressed_scraped_lyrics.json'
-    n = 0
+    file = os.getcwd() + '/../Lyrics/' + '_' + language + "/" + file_name
+    speak = wincl.Dispatch("SAPI.SpVoice")
     with open(file, 'r', encoding='utf-8') as file:
         data = json.load(file)
-        for artist in data['artists']:
-            print(artist)
-            for song in (data['artists'][artist]['songs']):
-                print('---' + song + '---')
-                print(data['artists'][artist]['songs'][song]['lyrics'])
+        artist_count = 0
+        song_count = 0
+        for song in data["songs"]:
+                print(song)
+                speak.Speak(data["songs"][song]["lyrics"])
+                song_count += 1
+        print("total artists scraped: " + str(artist_count))
+        print("total songs scraped " +str(song_count))
+        # for artist in data['artists']:
+        #     print(artist)
+        #     for song in (data['artists'][artist]['songs']):
+        #         print('---' + song + '---')
+        #         print(data['artists'][artist]['songs'][song]['lyrics'])
+
 
 # ---------------CODE--------------------
-read_file('Afrika Bambaataa')
+read_file(file_name='Hef.json', language='nl')
