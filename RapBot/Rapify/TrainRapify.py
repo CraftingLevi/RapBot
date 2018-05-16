@@ -9,7 +9,7 @@ Last Updated: 11-05-2018
 """
 import ast
 import base64
-
+import json
 import os
 import re
 
@@ -38,18 +38,15 @@ def generate_word_model():
 
 def read_file(artist):
     # TODO finish query
-    dir = os.getcwd() + '/../Lyrics/' + artist + '/'
+    file = os.getcwd() + '/../Lyrics/compressed_scraped_lyrics.json'
     n = 0
-    for f in os.listdir(dir):
-        with open(dir + f, 'r', encoding='utf-8') as file:
-            if (n < 1):
-                print(f)
-                n += 1
-                lyrics = file.readlines()
-                for line in lyrics:
-                    if line != '\n':
-                        tokens = tok.word_tokenize(line)
-                        print(tokens)
+    with open(file, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+        for artist in data['artists']:
+            print(artist)
+            for song in (data['artists'][artist]):
+                print('---' + song + '---')
+                print(data['artists'][artist][song]['lyrics'])
 
 # ---------------CODE--------------------
-# readFile('50 Cent')
+read_file('Afrika Bambaataa')

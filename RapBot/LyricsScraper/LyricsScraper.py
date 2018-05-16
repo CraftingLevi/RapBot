@@ -132,7 +132,6 @@ class LyricsArtist(object):
                         metadata = ast.literal_eval(((line.partition('=')[2].strip())[:-1])
                                                     .replace('false', 'False').replace('true', 'True')
                                                     .replace('null', 'None'))
-                        title = (metadata["Title"])
                         primary_artist = metadata["Primary Artist"]
                         album = metadata["Primary Album"]
                         music_bool = metadata["Music?"]
@@ -149,7 +148,6 @@ class LyricsArtist(object):
                 # store all data in a dictionary if it is actually music
                 if music_bool and language == 'en':
                     self.songs_data.get(song_title)['lyrics'] = lyrics
-                    self.songs_data.get(song_title)['title'] = title
                     self.songs_data.get(song_title)['year'] = year
                     self.songs_data.get(song_title)['featuring_artists'] = featuring_artists
                     self.songs_data.get(song_title)['primary_artist'] = primary_artist
@@ -183,7 +181,6 @@ class LyricsArtist(object):
         json.dump(artist_library, file, sort_keys=True, indent=4)
         file.close()
 
-
 """
 get_lyrics_top100rappers acquires the lyrics from all songs of the rappers in a text file
 INPUT: file_path to the .txt file containing names of rappers seperated by '\n'
@@ -216,22 +213,22 @@ def get_lyrics_top100rappers(file_path=os.getcwd() + '/Top100Rappers.txt'):
             failed_artists.append(artists[x])
     logger.debug("Done! I've failed the following artists: ")
     for x in range(0, len(failed_artists)):
-        logger.debug(failed_artists[x])
+        logger.debug(str(failed_artists[x]))
     logger.debug("Check your spelling or look on genius.com how the artist name is stored")
 
-
-"""
-the function get_song_metadata acquires certain metadata about the songs in the folder 'Lyrics'
-INPUT:-
-REQUIRES: a 'succesfull' run of get_lyrics_top100rappers(file_path)
-"""
-
-
-def get_song_metadata():
-    """do nothing"""
-    # TODO port from TrainRapify
-
+def compress_jsons(file_path= os.getcwd() + "/Lyrics/"):
+    print(file_path)
+    complete_library = {'artists': {}}
+    for file in os.listdir(file_path):
+        if re.search('.json', file) and not re.search('compressed', file):
+            f = open(os.path.join(file_path, file), 'r', encoding='utf-8')
+            data = json.load(f)
+            complete_library.get('artists')[data['artist']] = data['songs']
+    file = open(os.path.join(file_path, 'compressed_scraped_lyrics.json'), "w", encoding='utf-8')
+    json.dump(complete_library, file, sort_keys=True, indent=4)
+    file.close()
 
 # --------------------------CODE--------------------------#
-#get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
-LyricsArtist('Afrika Bambaataa').store_lyrics()
+get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+compress_jsons()
+#LyricsArtist('Afrika Bambaataa').store_lyrics()
