@@ -9,7 +9,7 @@ REQUIRES: An identifier TOKEN (API key) for the Genius API
 USEFUL: Acquire a corpus of lyrics to perform NLP operations on for research purposes for advanced analytics
 Last Updated: 11-05-2018
 """
-
+import ast
 from time import sleep
 import requests
 import simplejson
@@ -20,6 +20,7 @@ import time
 import datetime
 import sys
 import logging
+import json
 
 # assert the correct python version
 assert sys.version_info.major >= 3
@@ -43,8 +44,7 @@ logging.basicConfig(level=logging.INFO)
 The class below scrapes the lyrics of all songs of a given artist
 Requires: Artist Name, API-key for authorization
 Usage: a = LyricsArtist("<NAME_ARTIST>").store_lyrics()
-Output: Creates a folder in this directory with the name of the artist
-        Folder includes <song_name>.txt files with lyrics of the <song_name>
+Output: Creates a JSON file with the artist name, includes all scraped songs of artist
 logging:
     Depends on logging.BasicConfig(level=<logging_level>)
     DEFAULT = logging.INFO
@@ -54,7 +54,7 @@ logging:
 class LyricsArtist(object):
     def __init__(self, artist):
         logger = logging.getLogger(LyricsArtist.__name__ + ".__init__")
-        self.songs_lyrics = {}
+        self.songs_data = {}
         self.artist = artist  # type: str
         self.songs_api_paths = {}
         self.songs = []
@@ -62,9 +62,9 @@ class LyricsArtist(object):
         search_url = BASE_URL + "/search"
         params = {'q': artist}
         response = requests.get(search_url, params=params, headers=HEADERS)
-        json = response.json()
+        genius_json = response.json()
         artist_id = None
-        for hit in json["response"]["hits"]:
+        for hit in genius_json["response"]["hits"]:
             if hit["result"]["primary_artist"]["name"] == self.artist:
                 artist_id = hit["result"]["primary_artist"]["id"]
                 logger.info("Found the Artist! Starting Scraping...")
@@ -80,8 +80,8 @@ class LyricsArtist(object):
             path = "/artists/{}/songs".format(artist_id)
             params = {'page': current_page}
             response = requests.get(BASE_URL + path, params=params, headers=HEADERS)
-            json = response.json()
-            page_songs = json['response']['songs']
+            genius_json = response.json()
+            page_songs = genius_json['response']['songs']
             if page_songs:
                 self.songs += page_songs
                 logger.info("I scraped " + str(current_page) + " pages (time: " +
@@ -109,13 +109,13 @@ class LyricsArtist(object):
             # BUGFIX: try/catch block for JSONDecodeError
             # CAUSE: most likely a 400 response, skips song in that case
             try:
-                json = response.json()
+                genius_json = response.json()
                 test_json = True
             except simplejson.scanner.JSONDecodeError:
                 test_json = False
                 logger.ERROR("Failed to read (" + n + ") " + song_title, exc_info=True)
             if test_json:
-                path = json["response"]["song"]["path"]
+                path = genius_json["response"]["song"]["path"]
                 # as we have extracted the song url from the api, we can go to the genius webpage
                 # from the genious webpage for the song, we extract the HTML
                 page_url = "http://genius.com" + path
@@ -126,7 +126,37 @@ class LyricsArtist(object):
                 lyrics = html.find("div", class_="lyrics").get_text()
                 lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)
                 # we store the songs in a dict with key=title, value=lyrics
-                self.songs_lyrics[song_title] = lyrics
+                self.songs_data[song_title] = {}
+                for line in page.text.splitlines():
+                    if re.search("var TRACKING_DATA =", line):
+                        metadata = ast.literal_eval(((line.partition('=')[2].strip())[:-1])
+                                                    .replace('false', 'False').replace('true', 'True')
+                                                    .replace('null', 'None'))
+                        title = (metadata["Title"])
+                        primary_artist = metadata["Primary Artist"]
+                        album = metadata["Primary Album"]
+                        music_bool = metadata["Music?"]
+                        language = metadata["Lyrics Language"]
+                        genre = metadata["Tag"]
+                    if re.search("release_date_components", line):
+                        featuring_artists = line.split('&quot;authors&quot;:')[1].replace('&quot;', '') \
+                            .replace(self.artist + ',', '').split(',sections')[0].split(',')
+                        if 'sections:' in featuring_artists[0]:
+                            featuring_artists = None
+                        year = line.split('release_date_components')[1].replace('&quot;', '').replace(":{year:", '')[:4]
+                        if year == ':nul':
+                            year = None
+                # store all data in a dictionary if it is actually music
+                if music_bool and language == 'en':
+                    self.songs_data.get(song_title)['lyrics'] = lyrics
+                    self.songs_data.get(song_title)['title'] = title
+                    self.songs_data.get(song_title)['year'] = year
+                    self.songs_data.get(song_title)['featuring_artists'] = featuring_artists
+                    self.songs_data.get(song_title)['primary_artist'] = primary_artist
+                    self.songs_data.get(song_title)['album'] = album
+                    self.songs_data.get(song_title)['genre'] = genre
+                if self.songs_data.get(song_title) == {}:
+                    self.songs_data.pop(song_title)
                 n += 1
                 logger.info("I scraped " + str(n) + " of " + str(amount_songs) + " songs (time: " +
                             datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
@@ -136,25 +166,22 @@ class LyricsArtist(object):
                 sleep(5)
                 logger.error("I skipped " + str(n) + "(time: " +
                              datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M:%S') + ')')
-        return self.songs_lyrics
+        return self.songs_data
 
     # in this code, we write the lyrics to a file
     # A directory is created for using the artist name if it doesn't already exist
     # A file is created with the name of the song title, and inside the lyrics
     # FIXED BUG: normal codec couldn't write some bytes, thus we use UTF-8 now for encoding
     def store_lyrics(self):
-        directory = os.getcwd() + "/Lyrics/" + self.artist
+        directory = os.getcwd() + "/Lyrics/"
         if not os.path.exists(directory):
             os.makedirs(directory)
         save_path = directory + "/"
-        songslist = self.scrape_lyrics()
-        for song in songslist:
-            file_name = re.sub("[\/\\\]", "-", song)
-            file_name = re.sub('[*\.|:?"]', "", file_name)
-            lyrics = songslist.get(song)
-            file = open(os.path.join(save_path, file_name + ".txt"), "w", encoding='utf-8')
-            file.write(lyrics)
-            file.close()
+        songs_list = self.scrape_lyrics()
+        artist_library = {'artist': self.artist, 'songs': songs_list}
+        file = open(os.path.join(save_path, self.artist + '.json'), "w", encoding='utf-8')
+        json.dump(artist_library, file, sort_keys=True, indent=4)
+        file.close()
 
 
 """
@@ -206,4 +233,5 @@ def get_song_metadata():
 
 
 # --------------------------CODE--------------------------#
-get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+#get_lyrics_top100rappers(os.getcwd() + '/Top100Rappers.txt')
+LyricsArtist('Afrika Bambaataa').store_lyrics()
