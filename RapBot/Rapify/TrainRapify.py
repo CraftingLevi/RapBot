@@ -44,9 +44,9 @@ def read_file(artist):
         data = json.load(file)
         for artist in data['artists']:
             print(artist)
-            for song in (data['artists'][artist]):
+            for song in (data['artists'][artist]['songs']):
                 print('---' + song + '---')
-                print(data['artists'][artist][song]['lyrics'])
+                print(data['artists'][artist]['songs'][song]['lyrics'])
 
 # ---------------CODE--------------------
 read_file('Afrika Bambaataa')
