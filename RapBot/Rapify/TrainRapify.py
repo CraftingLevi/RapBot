@@ -7,6 +7,7 @@ REQUIRES: -
 USEFUL: -
 Last Updated: 11-05-2018
 """
+
 import ast
 import base64
 import json
@@ -38,17 +39,20 @@ def generate_word_model():
 def read_file(file_name='collection.json', language='en'):
     # TODO finish query
     file = os.getcwd() + '/../Lyrics/' + '_' + language + "/" + file_name
-    speak = wincl.Dispatch("SAPI.SpVoice")
     with open(file, 'r', encoding='utf-8') as file:
         data = json.load(file)
         artist_count = 0
         song_count = 0
-        for song in data["songs"]:
-                print(song)
-                speak.Speak(data["songs"][song]["lyrics"])
-                song_count += 1
+        line_count = 0
+        for artist in data["artists"]:
+                artist_count += 1
+                for song in data["artists"][artist]["songs"]:
+                    song_count += 1
+                    lyrics = data["artists"][artist]["songs"][song]["lyrics"]
+                    line_count += lyrics.count('\n')
         print("total artists scraped: " + str(artist_count))
         print("total songs scraped " +str(song_count))
+        print("total lines scraped " + str(line_count))
         # for artist in data['artists']:
         #     print(artist)
         #     for song in (data['artists'][artist]['songs']):
@@ -57,4 +61,4 @@ def read_file(file_name='collection.json', language='en'):
 
 
 # ---------------CODE--------------------
-read_file(file_name='Hef.json', language='nl')
+read_file(language='nl')

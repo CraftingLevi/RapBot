@@ -174,7 +174,7 @@ class LyricsArtist(object):
     # A file is created with the name of the song title, and inside the lyrics
     # FIXED BUG: normal codec couldn't write some bytes, thus we use UTF-8 now for encoding
     def store_lyrics(self, save_directory="/Lyrics"):
-        directory = os.getcwd() + save_directory + "_" +self.language + "/"
+        directory = os.getcwd() + save_directory + "_" + self.language + "/"
         if not os.path.exists(directory):
             os.makedirs(directory)
         songs_list = self.scrape_lyrics()
@@ -209,7 +209,7 @@ def get_lyrics_artists(file_path=os.getcwd() + '/Top100Rappers.txt', save_direct
     for x in range(0, len(artists)):
         logger.info("I am going to scrape " + artists[x])
         try:
-            LyricsArtist(artists[x],language=language).store_lyrics(save_directory=save_directory)
+            LyricsArtist(artists[x], language=language).store_lyrics(save_directory=save_directory)
             logger.info("Succes: " + artists[x])
         except:  # Exceptions are currently unknown
             logger.error("Failed: " + artists[x], exc_info=True)
@@ -232,7 +232,7 @@ each song has a dictionary with -->
 """
 
 
-def compress_jsons(directory= os.getcwd() + "/Lyrics/_en", file_name='collection.json'):
+def compress_jsons(directory=os.getcwd() + "/Lyrics/_en", file_name='collection.json'):
     complete_library = {'artists': {}}
     for file in os.listdir(directory):
         if re.search('.json', file) and not re.search('file_name', file):
@@ -243,7 +243,9 @@ def compress_jsons(directory= os.getcwd() + "/Lyrics/_en", file_name='collection
     json.dump(complete_library, file, sort_keys=True, indent=4)
     file.close()
 
-def filter_already_scraped(directory=os.getcwd() + "/Lyrics/", file_path_artist_list = os.getcwd() + '/Top100Rappers.txt'):
+
+def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
+                           file_path_artist_list=os.getcwd() + '/Top100Rappers.txt'):
     scraped_artists = []
     list_of_artists = []
     if not os.path.exists(directory):
@@ -268,7 +270,8 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/", file_path_artist_
             f.write(list_of_artists[x])
     f.close()
 
+
 # --------------------------CODE--------------------------#
 get_lyrics_artists(os.getcwd() + '/RappersNL.txt', language='nl')
-#filter_already_scraped(directory=os.getcwd() + "/Lyrics/_nl", file_path_artist_list=os.getcwd() +"/RappersNL.txt")
-#compress_jsons(directory=os.getcwd() +"/Lyrics/_nl")
+# filter_already_scraped(directory=os.getcwd() + "/Lyrics/_nl", file_path_artist_list=os.getcwd() +"/RappersNL.txt")
+# compress_jsons(directory=os.getcwd() +"/Lyrics/_nl")
