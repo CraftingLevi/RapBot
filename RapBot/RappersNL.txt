@@ -1,197 +1,195 @@
 #use an # to ignore rappers
-Hef
-SBMG
-SFB
-Ali B
-Yes-R
-Fresku
-De Likt
-24K
-Baas B
-Bagga Bownz
-Des Balentien
-ADHD
-Adje
-I Am Aisha
-Akwasi
+#Hef
+#SBMG
+#SFB
+#Ali B
+#Yes-R
+#Fresku
+#De Likt
+#24K
+#Baas B
+#ADHD
+#Adje
+#I Am Aisha
+#Akwasi
 Appa
-Ares
-Big2
+#Ares
+#Big2
 Bizzy Blaze
-BKO
+#BKO
 Blaxtar
 Boef
 Boef en de Gelogeerde Aap
-Bokoesam
+#Bokoesam
 Bolle Tim
 Brownie Dutch, 2012
-Brainpower
-Joey Bravo
+#Brainpower
+#Joey Bravo
 #Broederliefde
-Brownie Dutch
+#Brownie Dutch
 Miggs de Bruijn
 Brutus
 BS-One
 Captain Cook
 Cartes & Kleine Jay
-ChildsPlay
+#ChildsPlay
 Cho
-Cilvaringz
+#Cilvaringz
 Crooks
 DAC
 Darryl
-D-Double
+#D-Double
 Def P
 Def P & Beatbusters
-Def Rhymz
-Dicecream
-Diggy Dex
-Digitzz
-Dio
+#Def Rhymz
+#Dicecream
+#Diggy Dex
+#Digitzz
+#Dio
 D-Men
 Önder Doğan (Murda, Turk, Önder)
 Don't Accept Mass Notion
 Donnie (Young Kermit, Maradonnie)
-Dope D.O.D.
-Dret & Krulle
+#Dope D.O.D.
+#Dret & Krulle
 Duvel
 DuvelDuvel
 E-Life
 Emms
 Excellent
-Extince
-Faberyayo
-Fakkelbrigade
+#Extince
+#Faberyayo
+#Fakkelbrigade
 Ruben Fernhout
-F1rstman
+#F1rstman
 Fit
-Flinke Namen
+#Flinke Namen
 Eddy Fort Moda Grog
-Fouradi
-Jonna Fraser
-Frenna
+#Fouradi
+#Jonna Fraser
+#Frenna
 theFringe
 Hampelemanne
 Massih Hutak
 Nawwal Ghabri
-Gikkels
+#Gikkels
 Gin Dutch
-Great Minds
-Green Gang
+#Great Minds
+#Green Gang
 Helderheid
 De Hoop
 Hydroboyz
 Ibra
-Ismo
-Jairzinho
-Jawat!
-Jebroer
+#Ismo
+#Jairzinho
+#Jawat!
+#Jebroer
 Jermain Bridgewater
-De Jeugd van Tegenwoordig
-Jiggy Djé
-Josylvio
-Keizer
-Kempi
+#De Jeugd van Tegenwoordig
+#Jiggy Djé
+#Josylvio
+#Keizer
+#Kempi
 Kevin
-Kid de Blits
-Killer Kamal
+#Kid de Blits
+#Killer Kamal
 Kimo
 King Lover
-Kleine Viezerik
+#Kleine Viezerik
 Klopdokter
-De Kraaien
-Kraantje Pappie
-Kubus
-Kyteman
+#De Kraaien
+#Kraantje Pappie
+#Kubus
+#Kyteman
 #Broederliefde
-Lil' Kleine
-Gers Pardoel
+#Lil' Kleine
+#Gers Pardoel
 Pepijn Lanen
-Lange Frans
+#Lange Frans
 Lange Frans & Baas B
-Latifah
-Leafs
+#Latifah
+#Leafs
 League of XO Gentlemen
-Lefensmannen
-Lijpe
+#Lefensmannen
+#Lijpe
 Reggy Lines
 MC Lynx
-Mafe
+#Mafe
 Man!e
 Maxje
 Meo
-MC Miker G
-MC Miker G & DJ Sven
-MocroManiac
-Monsif
+#MC Miker G
+#MC Miker G & DJ Sven
+#MocroManiac
+#Monsif
 Murth Mossel
 Nasty
 Nathalie Blue
 Negativ
 Neuk!
-New Wave
+#New Wave
 Nina
-Nouveau Riche
+#Nouveau Riche
 O-Dog
-Opgeduveld
-Opgezwolle
+#Opgeduveld
+#Opgezwolle
 The Opposites
-Osdorp Posse
-Pete Philly
-Pete Philly & Perquisite
+#Osdorp Posse
+#Pete Philly
+#Pete Philly & Perquisite
 Phatt
 Phreako Rico
-Mr. Polska
+#Mr. Polska
 Postman
-Postmen
-Priester
-Mr. Probz
+#Postmen
+#Priester
+#Mr. Probz
 The Proov
-Ronnie Flex
-Rasskulz
-Raymzter
+#Ronnie Flex
+#Rasskulz
+#Raymzter
 Redlight Boogie
 Relax
 Reverse
 Riza
 Rotjoch
-Salah Edin
-Scylla
-Sef
+#Salah Edin
+#Scylla
+#Sef
 Sevn Alias
 Sjaak
 Skate the Great
 Skiggy Rapz
 Ray Slijngaard
 Snelle Jelle
-Soesi B
+#Soesi B
 Sonny Diablo
-SpaceKees
-Spookrijders
-Steen
+#SpaceKees
+#Spookrijders
+#Steen
 Sticks
-Straight Outta Control
-Tuindorp Hustler Click
+#Straight Outta Control
+#Tuindorp Hustler Click
 Terilekst
 T.O.F.
-Tony Scott
+#Tony Scott
 Soufiane Touzani
 Tur-G
 Two Crooks
-Typhoon
+#Typhoon
 U-Niq
 Unorthadox
-Urban Dance Squad
-Kleine Viezerik
-Rick Versace
+#Urban Dance Squad
+#Kleine Viezerik
+#Rick Versace
 Vieze Fur
 VSOP
 Willie Wartaal
 Willy
 Winne
-Wudstik
+#Wudstik
 Youssef en Kamal
 YS
 Yukki B
-Zo Moeilijk
-Zwart Licht
+#Zo Moeilijk
+#Zwart Licht

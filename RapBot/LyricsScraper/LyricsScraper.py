@@ -74,6 +74,9 @@ class LyricsArtist(object):
                 artist_id = 18793
                 logger.info("used custom ID for " + artist)
                 break
+            elif self.artist == 'Appa':
+                artist_id = 342387
+                logger.info("used custom ID for " + artist)
         # if we have successfully found the artist, the next code should not terminate the script
         # this code will retrieve the song title and song api id for each song of the artist
         if artist_id is None:
@@ -253,7 +256,7 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
         return
     else:
         for file in os.listdir(directory):
-            scraped_artists.append(file.replace('.json', ''))
+           scraped_artists.append(file.replace('.json', ''))
     artist_file = open(file_path_artist_list, 'r', encoding='utf-8')
     for line in artist_file.readlines():
         list_of_artists.append(line.replace('\n', ''))
@@ -272,6 +275,6 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
 
 
 # --------------------------CODE--------------------------#
-get_lyrics_artists(os.getcwd() + '/RappersNL.txt', language='nl')
-# filter_already_scraped(directory=os.getcwd() + "/Lyrics/_nl", file_path_artist_list=os.getcwd() +"/RappersNL.txt")
-# compress_jsons(directory=os.getcwd() +"/Lyrics/_nl")
+get_lyrics_artists(os.getcwd() + '/Top100Rappers.txt', language='en')
+#filter_already_scraped(directory=os.getcwd() + "/Lyrics/_en", file_path_artist_list=os.getcwd() +"/Top100Rappers.txt")
+#compress_jsons(directory=os.getcwd() +"/Lyrics/_en")

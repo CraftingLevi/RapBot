@@ -1,58 +1,58 @@
 #use an # to ignore rappers
-Run-D.M.C.
-2Pac
-Public Enemy
-JAY-Z
-N.W.A
-Grandmaster Flash & The Furious Five
-The Notorious B.I.G.
-Eric B. & Rakim
-LL Cool J
-Nas
-De La Soul
-OutKast
-Eminem
-Beastie Boys
+#Run-D.M.C.
+#2Pac
+#Public Enemy
+#JAY-Z
+#N.W.A
+#Grandmaster Flash & The Furious Five
+#The Notorious B.I.G.
+#Eric B. & Rakim
+#LL Cool J
+#Nas
+#De La Soul
+#OutKast
+#Eminem
+#Beastie Boys
 #Afrika Bambaataa
-A Tribe Called Quest
-Dr. Dre
-Kanye West
-Wu-Tang Clan
-Ice Cube
-Big Daddy Kane
-Boogie Down Productions
-Snoop Dogg
-Slick Rick
-Kurtis Blow
-Kool G Rap
-Lauryn Hill
-Lil Wayne
-The Roots
-Kendrick Lamar
+#A Tribe Called Quest
+#Dr. Dre
+#Kanye West
+#Wu-Tang Clan
+#Ice Cube
+#Big Daddy Kane
+#Boogie Down Productions
+#Snoop Dogg
+#Slick Rick
+#Kurtis Blow
+#Kool G Rap
+#Lauryn Hill
+#Lil Wayne
+#The Roots
+#Kendrick Lamar
 Missy Elliot
-Salt-N-Pepa
-Gang Starr
-Common
-Scarface
-Queen Latifah
+#Salt-N-Pepa
+#Gang Starr
+#Common
+#Scarface
+#Queen Latifah
 Mos Def
-MC Lyte
-Jungle Brothers
-Ice-T
-Busta Rhymes
-Ghostface Killah
-UGK
+#MC Lyte
+#Jungle Brothers
+#Ice-T
+#Busta Rhymes
+#Ghostface Killah
+#UGK
 The Fugees
-EPMD
-Kool Moe Dee
-Whodini
+#EPMD
+#Kool Moe Dee
+#Whodini
 Pete Rock & CL Smooth
-Raekwon
-Cold Crush Brothers
+#Raekwon
+#Cold Crush Brothers
 Bone Thugs N Harmony
 The Sugarhill Gang
-Cypress Hill
-Mobb Deep
+#Cypress Hill
+#Mobb Deep
 Lil Kim
 #T.I.
 DJ Jazzy Jeff & the Fresh Prince
