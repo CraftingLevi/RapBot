@@ -7,12 +7,14 @@ REQUIRES: -
 USEFUL: -
 Last Updated: 11-05-2018
 """
-
+import gensim
 import spacy
 
 import json
 import os
 import re
+
+from gensim import corpora
 from nltk import ngrams as ng
 
 BASE_URL = "http://api.genius.com"
@@ -77,12 +79,12 @@ def ngrams(file_name='Adje.json', language='nl', n=1, probabilities=True):
             sentence = sentence
             sentence = nlp(sentence)
             ng(sentence)
-            # for token in sentence:
-            #     token = token.text.lower()
-            #     if token in ngram:
-            #         ngram[token] = ngram.get(token) + 1
-            #     else:
-            #         ngram[token] = 1
+            for token in sentence:
+                token = token.text.lower()
+                if token in ngram:
+                    ngram[token] = ngram.get(token) + 1
+                else:
+                    ngram[token] = 1
     print(ngram)
     print(len(ngram))
 
@@ -112,26 +114,77 @@ def findSlang(file_name='collection.json', language='en', n=1, probabilities=Tru
     top20 = [(k, ngram[k]) for k in sorted(ngram, key=ngram.get, reverse=True)][:20]
     return top20
 
-def createRhymeScheme(file_name ='Adje.json', language='nl'):
-    #TODO implement https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf
+
+
+
+def generate_word2vec_model(file_name = 'collection.json', language = 'nl'):
     file = os.getcwd() + '/../Lyrics/' + '_' + language + '/' + file_name
     file = open(file, 'r', encoding='utf-8')
     data = json.load(file)
+    sentences = []
+    for artist in data['artists']:
+        for song in data['artists'][artist]['songs']:
+            lyrics = data['artists'][artist]["songs"][song]['lyrics']
+            for sentence in lyrics.split('\n'):
+                sentences.append(gensim.utils.simple_preprocess(sentence))
+    model = gensim.models.Word2Vec(
+        sentences,
+        size = 150,
+        window = 10,
+        min_count=2,
+        workers=10
+    )
+    model.train(sentences, total_examples=len(sentences), epochs=10)
+    model.save(os.getcwd() + '/../Rapify/' + 'testword2vecmodel')
+
+def generate_LDA_model(file_name = 'collection.json', language = 'nl'):
+    file = os.getcwd() + '/../Lyrics/' + '_' + language + '/' + file_name
+    file = open(file, 'r', encoding='utf-8')
+    data = json.load(file)
+    sentences = []
+    STOP_WORDS = load_stopwords()
     if language == 'nl':
         nlp = spacy.load('nl_core_news_sm')
     elif language == 'en':
         nlp = spacy.load('en_core_web_lg')
     else:
-        print('language (' + language + ') is not supported')
-    for song in data['songs']:
-        print('-----------' + song + '----------------')
-        lyrics = data['songs'][song]['lyrics']
-        sentences = []
-        for sentence in lyrics.split('\n'):
-            if sentence is not '':
-                sentences.append(sentence)
-                print(repr(sentence))
+        print("language '" + language + "' not supported")
+    for artist in data['artists']:
+        print(artist)
+        for song in data['artists'][artist]['songs']:
+            lyrics = data['artists'][artist]["songs"][song]['lyrics']
+            for sentence in lyrics.split('\n'):
+                s = ''
+                nlpdata = nlp(sentence)
+                for token in nlpdata:
+                    if token.text.lower() not in STOP_WORDS and token.pos_ in ['NOUN', 'ADJ', 'VERB', 'ADV']:
+                        s = s + token.text + " "
+                s.strip()
+                sentences.append(gensim.utils.simple_preprocess(s))
+    print('I will now create the LDA model')
+    dictionary = corpora.Dictionary(sentences)
+    doc_term_matrix = [dictionary.doc2bow(sentence) for sentence in sentences]
+    Lda = gensim.models.ldamodel.LdaModel
+    ldamodel = Lda(doc_term_matrix, num_topics=5, id2word=dictionary, passes=300)
+    ldamodel.save(os.getcwd() + '/../Rapify/' + 'testldamodel')
+
+def load_stopwords():
+    STOP_WORDS = []
+    file = os.getcwd() + '/../STOP_WORDS'
+    file = open(file, 'r', encoding='utf-8')
+    for word in file.readlines():
+        STOP_WORDS.append(word.replace('\n', ''))
+    return STOP_WORDS
+
+def display_topics(model_path=os.getcwd() + '/../Rapify/testldamodel'):
+    model = gensim.models.LdaModel.load(model_path)
+    for topic in model.show_topics():
+        for word in topic:
+            print(word)
 # ---------------CODE--------------------
 # read_file(file_name='Adje.json', language='nl')
-#print(findSlang())
-createRhymeScheme()
+# print(findSlang())
+#createRhymeScheme()
+#testing_word2vec()
+#generate_LDA_model()
+display_topics()

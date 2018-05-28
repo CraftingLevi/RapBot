@@ -56,9 +56,9 @@ The Sugarhill Gang
 Lil Kim
 #T.I.
 DJ Jazzy Jeff & the Fresh Prince
-Ludacris
-Naughty By Nature
-Eazy-E
+#Ludacris
+#Naughty By Nature
+#Eazy-E
 P. Diddy
 50 Cent
 Nelly
