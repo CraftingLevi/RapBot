@@ -170,7 +170,7 @@ def generate_LDA_model(file_name = 'collection.json', language = 'nl'):
 
 def load_stopwords():
     STOP_WORDS = []
-    file = os.getcwd() + '/../STOP_WORDS'
+    file = os.getcwd() + '/../STOP_WORDS_DUTCH'
     file = open(file, 'r', encoding='utf-8')
     for word in file.readlines():
         STOP_WORDS.append(word.replace('\n', ''))

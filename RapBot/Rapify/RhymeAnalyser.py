@@ -149,7 +149,7 @@ def check_eind_rijm(word1, word2):
 
 def load_stopwords():
     STOP_WORDS = []
-    file = os.getcwd() + '/../STOP_WORDS'
+    file = os.getcwd() + '/../STOP_WORDS_DUTCH'
     file = open(file, 'r', encoding='utf-8')
     for word in file.readlines():
         STOP_WORDS.append(word.replace('\n', ''))
@@ -190,14 +190,14 @@ def plot_rhym_voc(cutoff=1000):
     for i, txt in enumerate(names):
         plt.annotate(txt, (x[i], y[i]))
     plotname = "cutoff=" +str(cutoff)
-    plt.figure(figsize=(70, 70))
-    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname), format='pdf')
+    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
     plt.clf()
     plt.close()
 
 
 # --- CODE----
-plot_rhym_voc(cutoff=50)
-plot_rhym_voc(cutoff=100)
-plot_rhym_voc(cutoff=150)
+plot_rhym_voc(cutoff=1000)
+plot_rhym_voc(cutoff=2000)
+plot_rhym_voc(cutoff=3000)
+plot_rhym_voc(cutoff=3500)
 
