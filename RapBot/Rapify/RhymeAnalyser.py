@@ -5,6 +5,7 @@ import json
 import spacy
 import matplotlib.pyplot as plt
 
+
 def check_the_rhyme(file_name='collection.json', language='nl', cutoff=1000):
     # TODO implement https://pdfs.semanticscholar.org/8b66/ea2b1fdc0d7df782545886930ddac0daa1de.pdf
     STOP_WORDS = load_stopwords()
@@ -17,12 +18,12 @@ def check_the_rhyme(file_name='collection.json', language='nl', cutoff=1000):
         nlp = spacy.load('en_core_web_lg')
     else:
         print('language (' + language + ') is not supported')
-    rhym_dict ={}
+    rhym_dict = {}
     vocabulary_size_dict = {}
     how_long_still = 0
     for artist in data['artists']:
-        how_long_still +=1
-        print('done '+ str(how_long_still) +' out of 80')
+        how_long_still += 1
+        print('done ' + str(how_long_still) + ' out of 80')
         line_count = 0
         vocabulary = []
         for song in data['artists'][artist]['songs']:
@@ -64,17 +65,19 @@ def check_the_rhyme(file_name='collection.json', language='nl', cutoff=1000):
         if line_count >= cutoff and artist in vocabulary_size_dict:
             vocabulary_size_dict[artist] = vocabulary_size_dict.get(artist) + len(vocabulary)
             break
-        elif line_count >=cutoff:
+        elif line_count >= cutoff:
             vocabulary_size_dict[artist] = len(vocabulary)
     true_rhym_dict = {}
     for artist in rhym_dict.keys():
         if artist in vocabulary_size_dict:
             true_rhym_dict[artist] = rhym_dict.get(artist)
+    file.close()
     return true_rhym_dict, vocabulary_size_dict
 
-#We do not use rijk rijm, as it is inferiour
+
+# We do not use rijk rijm, as it is inferiour
 def is_rhyme(w1, w2):
-    if check_eind_rijm(w1, w2) or check_begin_rijm(w1, w2):
+    if check_eind_rijm(w1, w2) or check_begin_rijm(w1, w2) or check_klinker_rijm(w1, w2):
         return True
     else:
         return False
@@ -97,41 +100,74 @@ def check_begin_rijm(word1, word2):
     else:
         return False
 
+def remove_last_consonants(word1, word2):
+    length1 = len(word1)
+    length2 = len(word2)
+    for i in range(1, length1):
+        if re.search('[aeiou]', word1[length1 - i]):
+            word1 = word1[:len(word1) - i + 1]
+            break
+    for i in range(1, length2):
+        if re.search('[aeiou]', word2[length2 - i]):
+            word2 = word2[:len(word2) - i + 1]
+            break
+    return word1, word2
+
+def remove_first_consonants(w1, w2):
+    for i in range(0, len(w1)):
+        if re.search('[aeiou]', w1[i]):
+            w1 = w1[i:]
+            break
+    for i in range(0, len(w2)):
+        if re.search('[aeiou]', w2[i]):
+            w2 = w2[i:]
+            break
+    return w1, w2
+
+def check_klinker_rijm(w1, w2):
+    w1, w2 = remove_last_consonants(w1, w2)
+    w1, w2 = remove_first_consonants(w1, w2)
+    w1 = word_equalizer_nl(w1)
+    w2 = word_equalizer_nl(w2)
+    if w1[:1] == w2[:1] or w1[len(w1) - 1] == w2[len(w2) - 1]:
+        return True
+    else:
+        return False
+
+
+# This is a pretty simply phonetic equilizer
 
 def word_equalizer_nl(word):
-    #TODO integrate list of exceptions
+    # TODO integrate list of exceptions
     word = word.replace('d', 't')
-    if word.find('c') != -1 and word.find('c') is not len(word) - 1:
-        i = word.index('c')
-        if word[i+1] in ['e', 'i']:
-            word = word.replace('c', 's')
-        else:
-            word = word.replace('c', 'k')
-    if word.find('qu') != -1:
-        i = word.index('qu')
-        if word[i+1] is 'e':
-            word = word.replace('qu', 'k')
-        else:
-            word = word.replace('qu', 'kw')
-    word = word.replace('ij', '?')
-    word = word.replace('ei', '?')
+    word = word.replace('cc', 'ss')
+    word = word.replace('ci', 'si')
+    word = word.replace('ce', 'se')
+    word = word.replace('c', 'k')
+    word = word.replace('que', 'ke')
+    word = word.replace('qu', 'kw')
     word = word.replace('z', 's')
     word = word.replace('v', 'f')
     word = word.replace('au', 'ou')
     word = word.replace('th', 't')
     word = word.replace('x', 'ks')
-    word = word.replace('y', 'i') # the rule of y as 'ie' or 'i' is vague
+    word = word.replace('y', 'i')  # the rule of y as 'ie' or 'i' is vague
     word = word.replace('oe', '!')
     word = word.replace('ee', '#')
     word = word.replace('en', 'e')
+    word = word.replace('aa', '*')
+    word = word.replace('ij', '?')
+    word = word.replace('ei', '?')
+    word = word.replace('ui', '+')
 
     return word
+
 
 def check_eind_rijm(word1, word2):
     word1 = word_equalizer_nl(word1)
     word2 = word_equalizer_nl(word2)
     if len(word1) <= len(word2):
-        n=0
+        n = 0
         adding = False
         for i in range(0, len(word2) - 1):
             checking = word1[n:]
@@ -147,13 +183,16 @@ def check_eind_rijm(word1, word2):
     else:
         return check_eind_rijm(word2, word1)
 
+
 def load_stopwords():
     STOP_WORDS = []
     file = os.getcwd() + '/../STOP_WORDS_DUTCH'
     file = open(file, 'r', encoding='utf-8')
     for word in file.readlines():
         STOP_WORDS.append(word.replace('\n', ''))
+    file.close()
     return STOP_WORDS
+
 
 def is_stopword(w, STOP_WORDS=None):
     if STOP_WORDS is None:
@@ -163,18 +202,9 @@ def is_stopword(w, STOP_WORDS=None):
     else:
         return False
 
-def plot_rhym_voc(cutoff=1000):
+
+def plot_rhym_voc_artists(cutoff=1000):
     voc, rhym = check_the_rhyme(cutoff=cutoff)
-    # print('VOCABULARY RANKINGS')
-    # n = 0
-    # for k, v in sorted(voc.items(), key=operator.itemgetter(1), reverse=True):
-    #     n += 1
-    #     print(n, k, v)
-    # n = 0
-    # print('RHYM RANKINGS')
-    # for k, v in sorted(rhym.items(), key=operator.itemgetter(1), reverse=True):
-    #     n += 1
-    #     print(n, k, v)
     x = []
     y = []
     names = []
@@ -189,15 +219,144 @@ def plot_rhym_voc(cutoff=1000):
     plt.title('Vocabulary-Rhym plot with cutoff=' + str(cutoff))
     for i, txt in enumerate(names):
         plt.annotate(txt, (x[i], y[i]))
-    plotname = "cutoff=" +str(cutoff)
+    plotname = "cutoff=" + str(cutoff)
     plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
     plt.clf()
     plt.close()
 
 
-# --- CODE----
-plot_rhym_voc(cutoff=1000)
-plot_rhym_voc(cutoff=2000)
-plot_rhym_voc(cutoff=3000)
-plot_rhym_voc(cutoff=3500)
+"""
+INPUT: -
+OUTPUT: A plot with points representing years over average vocabulary size and average rhyme count
+        Output is stored under 'Plots' as 'voc-rhyme analysis (per year).png'
+USES: check_the_rhyme_yearly()
+"""
 
+
+def plot_rhym_voc_yearly():
+    count, voc, rhym = check_the_rhyme_yearly()
+    x = []
+    y = []
+    z = []
+    names = []
+    for year in voc.keys():
+        print(year)
+        names.append(year)
+        x.append(voc.get(year) / count.get(year))
+        y.append(rhym.get(year) / count.get(year))
+        z.append(count.get(year))
+    # SCATTER PLOT
+    plt.scatter(x, y, s=30)
+    plt.xlabel('Average Vocabulary Size per song')
+    plt.ylabel('Average Occurences of Rhyme per song')
+    plt.title('Vocabulary-Rhyme plot by year')
+    for i, txt in enumerate(names):
+        plt.annotate(txt, (x[i], y[i]))
+    plotname = "voc-rhyme analysis (per year)"
+    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
+    plt.clf()
+    # BAR PLOT VOCABULARY SIZE
+    plt.bar(names, x)
+    plt.xlabel('Year')
+    plt.ylabel('Average vocabulary size per song')
+    plt.title('Average vocabulary size per song per year')
+    plotname = "voc analysis (per year)"
+    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
+    plt.clf()
+    # BAR PLOT RHYME COUNT
+    plt.bar(names, y)
+    plt.xlabel('Year')
+    plt.ylabel('Average rhyme count per song')
+    plt.title('Average rhyme count per song per year')
+    plotname = "Rhyme analysis (per year)"
+    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
+    plt.clf()
+    plt.bar(names, z)
+    plt.xlabel('Year')
+    plt.ylabel('Sample size')
+    plt.title('Sample size per year')
+    plotname = "Sample analysis (per year)"
+    plt.savefig(os.getcwd() + "/../Plots/" + str(plotname))
+    plt.clf()
+    plt.close()
+
+
+"""
+this function calculates the average rhyme using our scraped dataset
+INPUT: a .json file with artists and songs and lyrics a key for years
+OUTPUT: three dictionaries, <count of songs per year>, <sum of vocabulary_size for all songs per year>, 
+        <sum of rhyme count for all songs per year>
+USED BY: plot_rhym_voc_yearly()
+"""
+
+
+# BUGFIX: I used break instead of continue..., this is fixed now
+def check_the_rhyme_yearly(file_name='collection.json', language='nl'):
+    total_songs = 0
+    STOP_WORDS = load_stopwords()
+    file = os.getcwd() + '/../Lyrics/' + '_' + language + '/' + file_name
+    file = open(file, 'r', encoding='utf-8')
+    data = json.load(file)
+    file.close()
+    if language == 'nl':
+        nlp = spacy.load('nl_core_news_sm')
+    elif language == 'en':
+        nlp = spacy.load('en_core_web_lg')
+    else:
+        print('language (' + language + ') is not supported')
+    rhym_dict = {}
+    vocabulary_size_dict = {}
+    song_count_dict = {}
+    how_long_still = 0
+    for artist in data['artists']:
+        how_long_still += 1
+        print('done ' + str(how_long_still) + ' out of 80 (' + artist + ')')
+        for song in data['artists'][artist]['songs']:
+            total_songs += 1
+            year = data['artists'][artist]['songs'][song]['release_date']
+            if year is None:
+                continue
+            else:
+                year = year[:4]
+            vocabulary = []
+            rhyme_count = 0
+            lyrics = data['artists'][artist]['songs'][song]['lyrics']
+            sentences = ''
+            for sentence in lyrics.split('\n'):
+                if sentence is not '':
+                    sentences = sentences + ' ' + sentence
+            tokens = nlp(sentences)
+            token_list = []
+            for token in tokens:
+                if not re.search("\w*[.,\/#!$%\^&\*;:{}=\-_`~()']\w*", token.text):
+                    token_list.append(token.text.lower())
+            for i in range(0, len(token_list)):
+                current_word = token_list[i]
+                other_words = token_list[i + 1:i + 15]
+                if current_word not in vocabulary:
+                    vocabulary.append(current_word)
+                for j in range(0, len(other_words)):
+                    checked_word = other_words[j]
+                    if checked_word is not None and is_stopword(current_word, STOP_WORDS) is False \
+                            and is_stopword(checked_word, STOP_WORDS) is False:
+                        if is_rhyme(current_word, checked_word):
+                            rhyme_count += 1
+                            break
+            if year in rhym_dict:
+                rhym_dict[year] = rhym_dict.get(year) + rhyme_count
+            else:
+                rhym_dict[year] = rhyme_count
+            if year in vocabulary_size_dict:
+                vocabulary_size_dict[year] = vocabulary_size_dict.get(year) + len(vocabulary)
+            else:
+                vocabulary_size_dict[year] = len(vocabulary)
+            if year in song_count_dict:
+                song_count_dict[year] = song_count_dict[year] + 1
+            else:
+                song_count_dict[year] = 1
+    print(total_songs)
+    return song_count_dict, vocabulary_size_dict, rhym_dict
+
+
+# --- CODE----
+plot_rhym_voc_yearly()
