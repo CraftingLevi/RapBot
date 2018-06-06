@@ -9,13 +9,15 @@ Last Updated: 11-05-2018
 """
 import gensim
 import spacy
-
+from nltk.stem.snowball import DutchStemmer
 import json
 import os
 import re
 
 from gensim import corpora
 from nltk import ngrams as ng
+
+stemmer = DutchStemmer()
 
 BASE_URL = "http://api.genius.com"
 file_path = os.getcwd() + "/../api_key_genius"
@@ -115,9 +117,7 @@ def findSlang(file_name='collection.json', language='en', n=1, probabilities=Tru
     return top20
 
 
-
-
-def generate_word2vec_model(file_name = 'collection.json', language = 'nl'):
+def generate_word2vec_model(file_name='collection.json', language='nl'):
     file = os.getcwd() + '/../Lyrics/' + '_' + language + '/' + file_name
     file = open(file, 'r', encoding='utf-8')
     data = json.load(file)
@@ -129,15 +129,16 @@ def generate_word2vec_model(file_name = 'collection.json', language = 'nl'):
                 sentences.append(gensim.utils.simple_preprocess(sentence))
     model = gensim.models.Word2Vec(
         sentences,
-        size = 150,
-        window = 10,
+        size=150,
+        window=10,
         min_count=2,
         workers=10
     )
     model.train(sentences, total_examples=len(sentences), epochs=10)
     model.save(os.getcwd() + '/../Rapify/' + 'testword2vecmodel')
 
-def generate_LDA_model(file_name = 'collection.json', language = 'nl'):
+
+def generate_LDA_model(file_name='collection.json', language='nl'):
     file = os.getcwd() + '/../Lyrics/' + '_' + language + '/' + file_name
     file = open(file, 'r', encoding='utf-8')
     data = json.load(file)
@@ -157,16 +158,21 @@ def generate_LDA_model(file_name = 'collection.json', language = 'nl'):
                 s = ''
                 nlpdata = nlp(sentence)
                 for token in nlpdata:
-                    if token.text.lower() not in STOP_WORDS and token.pos_ in ['NOUN', 'ADJ', 'VERB', 'ADV']:
-                        s = s + token.text + " "
+                    if token.text.lower() not in STOP_WORDS and token.pos_ in ['NOUN', 'ADJ', 'VERB', 'ADV'] \
+                            and (token.text is not None or " " or "") and not re.search(
+                            "\w*[.,\/#!$%\^&\*;:{}=\-_`~()']\w", token.text):
+                        lemma = stemmer.stem(word=token.text)
+                        s = s + lemma + " "
                 s.strip()
                 sentences.append(gensim.utils.simple_preprocess(s))
     print('I will now create the LDA model')
     dictionary = corpora.Dictionary(sentences)
+    dictionary.filter_extremes(no_below=20, no_above=0.5)
     doc_term_matrix = [dictionary.doc2bow(sentence) for sentence in sentences]
-    Lda = gensim.models.ldamodel.LdaModel
-    ldamodel = Lda(doc_term_matrix, num_topics=5, id2word=dictionary, passes=300)
+    ldamodel = gensim.models.ldamodel.LdaModel(doc_term_matrix, num_topics=10, id2word=dictionary,
+                                                       passes=20, chunksize=180, iterations=100)
     ldamodel.save(os.getcwd() + '/../Rapify/' + 'testldamodel')
+
 
 def load_stopwords():
     STOP_WORDS = []
@@ -176,15 +182,18 @@ def load_stopwords():
         STOP_WORDS.append(word.replace('\n', ''))
     return STOP_WORDS
 
+
 def display_topics(model_path=os.getcwd() + '/../Rapify/testldamodel'):
     model = gensim.models.LdaModel.load(model_path)
     for topic in model.show_topics():
         for word in topic:
             print(word)
+
+
 # ---------------CODE--------------------
 # read_file(file_name='Adje.json', language='nl')
 # print(findSlang())
-#createRhymeScheme()
-#testing_word2vec()
+# createRhymeScheme()
+# testing_word2vec()
 #generate_LDA_model()
 display_topics()

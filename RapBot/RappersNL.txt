@@ -12,30 +12,27 @@
 #Adje
 #I Am Aisha
 #Akwasi
-Appa
+#Appa
 #Ares
 #Big2
-Bizzy Blaze
 #BKO
 Blaxtar
-Boef
-Boef en de Gelogeerde Aap
+#BOEF
 #Bokoesam
-Bolle Tim
-Brownie Dutch, 2012
+#Brownie Dutch
 #Brainpower
 #Joey Bravo
 #Broederliefde
 #Brownie Dutch
 Miggs de Bruijn
-Brutus
+#Brutus
 BS-One
 Captain Cook
 Cartes & Kleine Jay
 #ChildsPlay
 Cho
 #Cilvaringz
-Crooks
+#Crooks
 DAC
 Darryl
 #D-Double
@@ -47,9 +44,8 @@ Def P & Beatbusters
 #Digitzz
 #Dio
 D-Men
-Önder Doğan (Murda, Turk, Önder)
 Don't Accept Mass Notion
-Donnie (Young Kermit, Maradonnie)
+#Donnie
 #Dope D.O.D.
 #Dret & Krulle
 Duvel
@@ -115,6 +111,7 @@ League of XO Gentlemen
 Reggy Lines
 MC Lynx
 #Mafe
+#Murda Turk
 Man!e
 Maxje
 Meo

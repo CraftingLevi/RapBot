@@ -33,7 +33,7 @@ This script requires the following constants:
 # TODO review store api_token in seperate file to start using public VCS
 BASE_URL = "http://api.genius.com"
 logger = logging.getLogger(__name__)
-file_path = os.getcwd() + "/api_key_genius"
+file_path = os.getcwd() + "/../api_key_genius"
 file = open(file_path, 'r', encoding='utf-8')
 TOKEN = file.readline()
 HEADERS = {'Authorization': "Bearer " + TOKEN}
@@ -74,6 +74,18 @@ class LyricsArtist(object):
                 artist_id = 18793
                 logger.info("used custom ID for " + artist)
                 break
+            elif self.artist == 'Appa':
+                artist_id = 342387
+                logger.info("used custom ID for " + artist)
+            elif self.artist == 'Winne':
+                artist_id = 18301
+                logger.info("used custom ID for " + artist)
+            elif self.artist == 'Donnie':
+                artist_id = 1058519
+                logger.info("used custom ID for " + artist)
+            elif self.artist == 'Crooks':
+                artist_id = 128101
+                logger.info("used custom ID for " + artist)
             elif self.artist == 'Appa':
                 artist_id = 342387
                 logger.info("used custom ID for " + artist)
@@ -177,7 +189,7 @@ class LyricsArtist(object):
     # A file is created with the name of the song title, and inside the lyrics
     # FIXED BUG: normal codec couldn't write some bytes, thus we use UTF-8 now for encoding
     def store_lyrics(self, save_directory="/Lyrics"):
-        directory = os.getcwd() + save_directory + "_" + self.language + "/"
+        directory = os.getcwd() + '/..' + save_directory + "_" + self.language + "/"
         if not os.path.exists(directory):
             os.makedirs(directory)
         songs_list = self.scrape_lyrics()
@@ -275,6 +287,6 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
 
 
 # --------------------------CODE--------------------------#
-get_lyrics_artists(os.getcwd() + '/Top100Rappers.txt', language='en')
-#filter_already_scraped(directory=os.getcwd() + "/Lyrics/_en", file_path_artist_list=os.getcwd() +"/Top100Rappers.txt")
-#compress_jsons(directory=os.getcwd() +"/Lyrics/_en")
+get_lyrics_artists(os.getcwd() + '/../RappersNL.txt', language='nl')
+#filter_already_scraped(directory=os.getcwd() + "/../Lyrics/_nl", file_path_artist_list=os.getcwd() +"/../RappersNL.txt")
+#compress_jsons(directory=os.getcwd() +"/../Lyrics/_nl")
