@@ -151,9 +151,10 @@ class LyricsArtist(object):
                 html = BeautifulSoup(page.text, "html.parser")
                 # after parsing the HTML, we remove all script elements between the lyrics
                 [h.extract() for h in html('script')]
-                lyrics = html.find("div", class_="lyrics").get_text()
-                lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)  # type: str
-                lyrics = re.sub('^\S*\s+', '', lyrics)
+                if html.find("div", class_="lyrics") is not None:
+                    lyrics = html.find("div", class_="lyrics").get_text()
+                    lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)  # type: str
+                    lyrics = re.sub('^\S*\s+', '', lyrics)
                 # we store the songs in a dict with key=title, value=lyrics
                 self.songs_data[song_title] = {}
                 for line in page.text.splitlines():
@@ -250,7 +251,7 @@ each song has a dictionary with -->
 def compress_jsons(directory=os.getcwd() + "/Lyrics/_en", file_name='collection.json'):
     complete_library = {'artists': {}}
     for file in os.listdir(directory):
-        if re.search('.json', file) and not re.search('file_name', file):
+        if re.search('.json', file) and not re.search(file_name, file):
             f = open(os.path.join(directory, file), 'r', encoding='utf-8')
             data = json.load(f)
             complete_library.get('artists')[data['artist']] = {'songs': data['songs']}
