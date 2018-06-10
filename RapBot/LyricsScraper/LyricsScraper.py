@@ -1,13 +1,18 @@
 """
 Written by Levi van der Heijden
-Original Github Repository: -
+Original Github Repository: https://github.com/CraftingLevi/RapBot/blob/master/RapBot/LyricsScraper/LyricsScraper.py
 PURPOSE: Scraping lyrics from the Genius.com API and storing them as txt
 DESCRIPTION: LyricsArtist(<String artistname>.scrape_lyrics() stores all lyrics of the specified artist
 in a new folder with the artist name as <song_title>.txt. The current script when run does this for
 the top 100 rappers of all time (2018)
 REQUIRES: An identifier TOKEN (API key) for the Genius API
 USEFUL: Acquire a corpus of lyrics to perform NLP operations on for research purposes for advanced analytics
-Last Updated: 11-05-2018
+TO RUN: please use the run_me.py file and follow the instructions. This file should only be changed with care
+KNOWN BUG: Sometimes an artist does exist in Genius, but the search results won't find hits with the artists name
+            The WORKAROUND is to go to docs.genius.com, perform a search query for a popular song with the artist
+            derive the artist_id from the results (a json file with the first hits)
+            put the artist_id in the if-clause in the first for-loop of the __init__ of the class LyricsArtist
+Last Updated: 08-06-2018
 """
 import ast
 from time import sleep
@@ -30,7 +35,6 @@ This script requires the following constants:
     <TOKEN> can be retrieved at https://genius.com/developers
 """
 
-# TODO review store api_token in seperate file to start using public VCS
 BASE_URL = "http://api.genius.com"
 logger = logging.getLogger(__name__)
 file_path = os.getcwd() + "/../api_key_genius"
@@ -54,7 +58,7 @@ logging:
 class LyricsArtist(object):
     def __init__(self, artist, language='en'):
         logger = logging.getLogger(LyricsArtist.__name__ + ".__init__")
-        self.language = language
+        self.language = language.lower()
         self.songs_data = {}
         self.artist = artist  # type: str
         self.songs_api_paths = {}
@@ -155,6 +159,8 @@ class LyricsArtist(object):
                     lyrics = html.find("div", class_="lyrics").get_text()
                     lyrics = re.sub("([(\[{]).*?([)\]}])", "", lyrics)  # type: str
                     lyrics = re.sub('^\S*\s+', '', lyrics)
+                else:
+                    continue
                 # we store the songs in a dict with key=title, value=lyrics
                 self.songs_data[song_title] = {}
                 for line in page.text.splitlines():
@@ -207,9 +213,10 @@ OUTPUT: In the folder 'Lyrics', in a directory <artist_name>, all song_lyrics wi
 """
 
 
-def get_lyrics_artists(file_path=os.getcwd() + '/Top100Rappers.txt', save_directory="/Lyrics/", language='en'):
-    assert isinstance(file_path, str)
+def get_lyrics_artists(file_name='Top100Rappers.txt', save_directory="/Lyrics/", language='en'):
+    assert isinstance(file_name, str)
     logger = logging.getLogger(get_lyrics_artists.__name__)
+    file_path = os.getcwd() + '/../' + file_name
     file = open(file_path, 'r', encoding='utf-8')
     artists = []
     reading = True
@@ -227,6 +234,9 @@ def get_lyrics_artists(file_path=os.getcwd() + '/Top100Rappers.txt', save_direct
         try:
             LyricsArtist(artists[x], language=language).store_lyrics(save_directory=save_directory)
             logger.info("Succes: " + artists[x])
+            filter_already_scraped(directory=os.getcwd() + "/../Lyrics/_" + language.lower(),
+                                   file_path_artist_list=file_path)
+            compress_jsons(directory=os.getcwd() + "/../Lyrics/_" + language.lower())
         except:  # Exceptions are currently unknown
             logger.error("Failed: " + artists[x], exc_info=True)
             failed_artists.append(artists[x])
@@ -260,8 +270,16 @@ def compress_jsons(directory=os.getcwd() + "/Lyrics/_en", file_name='collection.
     file.close()
 
 
+"""
+This function filters the artists that were already scraped from the provided .txt document
+This function is in the get_lyrics_artists() function
+INPUT: directory_path, file_path_artist_list
+OUTPUT: given file_path_artist_list file is changed such that if an artist is scraped, the line wil go from
+<ARTIST NAME> to #<ARTIST NAME>. The get_lyrics_artist() function will then skip the artist in the next run
+"""
+
 def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
-                           file_path_artist_list=os.getcwd() + '/Top100Rappers.txt'):
+                           file_path_artist_list=None):
     scraped_artists = []
     list_of_artists = []
     if not os.path.exists(directory):
@@ -286,8 +304,3 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
             f.write(list_of_artists[x])
     f.close()
 
-
-# --------------------------CODE--------------------------#
-get_lyrics_artists(os.getcwd() + '/../RappersNL.txt', language='nl')
-#filter_already_scraped(directory=os.getcwd() + "/../Lyrics/_nl", file_path_artist_list=os.getcwd() +"/../RappersNL.txt")
-#compress_jsons(directory=os.getcwd() +"/../Lyrics/_nl")
