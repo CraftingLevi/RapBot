@@ -14,6 +14,7 @@ KNOWN BUG: Sometimes an artist does exist in Genius, but the search results won'
             put the artist_id in the if-clause in the first for-loop of the __init__ of the class LyricsArtist
 Last Updated: 08-06-2018
 """
+
 import ast
 from time import sleep
 import requests
@@ -56,7 +57,7 @@ logging:
 
 
 class LyricsArtist(object):
-    def __init__(self, artist, language='en'):
+    def __init__(self, artist, language='en', refresh=True):
         logger = logging.getLogger(LyricsArtist.__name__ + ".__init__")
         self.language = language.lower()
         self.songs_data = {}
@@ -117,9 +118,23 @@ class LyricsArtist(object):
                 logger.info("Done Scraping!")
         # after all song titles are found and linked with song_api_ids, we write them to
         # self.songs_api_paths where the key is the song name and the value the link to the song info
-        for song in self.songs:
-            if song["primary_artist"]["id"] == artist_id:
-                self.songs_api_paths[song["title"]] = "/songs/" + str(song["id"])
+        #TODO only scrape new songs
+        collection_file = open(os.getcwd() + "/../Lyrics/_" + language + "/collection.json", "r", encoding="utf-8")
+        artists_scraped = json.load(collection_file)
+        if refresh:
+            if artist in artists_scraped["artists"]:
+                artist_songs = artists_scraped["artists"][artist]["songs"]
+            else:
+                artist_songs = None
+            if artist_songs is not None:
+                self.songs_data = artist_songs
+            for song in self.songs:
+                if song["primary_artist"]["id"] == artist_id and song["title"] not in self.songs_data.keys():
+                    self.songs_api_paths[song["title"]] = "/songs/" + str(song["id"])
+        else:
+            for song in self.songs:
+                if song["primary_artist"]["id"] == artist_id:
+                    self.songs_api_paths[song["title"]] = "/songs/" + str(song["id"])
 
     def scrape_lyrics(self):
         logger = logging.getLogger(LyricsArtist.__name__ + ".scrape_lyrics")
@@ -213,7 +228,7 @@ OUTPUT: In the folder 'Lyrics', in a directory <artist_name>, all song_lyrics wi
 """
 
 
-def get_lyrics_artists(file_name='Top100Rappers.txt', save_directory="/Lyrics/", language='en'):
+def get_lyrics_artists(file_name='Top100Rappers.txt', save_directory="/Lyrics/", language='en', refresh=True):
     assert isinstance(file_name, str)
     logger = logging.getLogger(get_lyrics_artists.__name__)
     file_path = os.getcwd() + '/../' + file_name
@@ -232,7 +247,7 @@ def get_lyrics_artists(file_name='Top100Rappers.txt', save_directory="/Lyrics/",
     for x in range(0, len(artists)):
         logger.info("I am going to scrape " + artists[x])
         try:
-            LyricsArtist(artists[x], language=language).store_lyrics(save_directory=save_directory)
+            LyricsArtist(artists[x], language=language, refresh=refresh).store_lyrics(save_directory=save_directory)
             logger.info("Succes: " + artists[x])
             filter_already_scraped(directory=os.getcwd() + "/../Lyrics/_" + language.lower(),
                                    file_path_artist_list=file_path)
@@ -303,4 +318,3 @@ def filter_already_scraped(directory=os.getcwd() + "/Lyrics/",
         else:
             f.write(list_of_artists[x])
     f.close()
-

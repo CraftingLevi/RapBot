@@ -1,4 +1,5 @@
 #use an # to ignore rappers
+#Kanye West
 #Run-D.M.C.
 #2Pac
 #Public Enemy
@@ -60,12 +61,12 @@ DJ Jazzy Jeff & the Fresh Prince
 #Naughty By Nature
 #Eazy-E
 P. Diddy
-50 Cent
-Nelly
+#50 Cent
+#Nelly
 #Heavy D
-Geto Boys
-Redman
-DMX
+#Geto Boys
+#Redman
+#DMX
 Talib Kweli
 Drake
 Digable Planets

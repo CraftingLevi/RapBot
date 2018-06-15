@@ -14,7 +14,7 @@ OUTPUT: Scrapes lyrics of the artists provided in a txt file given in file_name
 # EXAMPLE:
 # Kanye West
 # Drake
-# when this script is run, and an artist has been scraped, the list will change to exclude a succfully scraped artist
+# when this script is run, and an artist has been scraped, the list will change to exclude a succesfully scraped artist
 # in a next run
 # EXAMPLE AFTER A RUN WHERE KANYE WEST WAS SCRAPED BUT DRAKE NOT
 # #Kanye West
@@ -28,5 +28,12 @@ file_name = 'Top100Rappers.txt'
 # 'nl'
 language = 'en'
 
+# The variable refresh will refresh artists. Use this to refresh already scraped artists.
+# So if one has already scraped a rapper and wants to refresh, remove the '#' in front of the
+# <ArtistName> to rescrape them with refresh on. This will skip already scraped lyrics when scraping
+# Implementation thus allows to add new numbers to the database without also rescraping all previous songs
+# This value is True by default
+refresh = True
 
-get_lyrics_artists(file_name=file_name, language=language)
+
+get_lyrics_artists(file_name=file_name, language=language, refresh=refresh)
