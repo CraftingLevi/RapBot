@@ -1,3 +1,5 @@
+# UPDATE: A Jupyter Notebook with a option to open in Google Collab exists for the text generation using a "Kanye West.json" created by the LyricsScraper script
+
 # RapBot
 A Bot that can scrape lyrics depending on Artists. Will be used to perform sub-projects such as text-based classification,
 Text prediction and Text Generation
